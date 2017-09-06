@@ -7,22 +7,30 @@ export const cli = vorpal()
 
 let username
 let server
+let serverHost
+let serverPort
+let previousCommand = "";
 
 cli
   .delimiter(cli.chalk['yellow']('ftd~$'))
 
 cli
-  .mode('connect <username>')
+  .mode('connect <username> <serverHost> <serverPort>') // <serverHost> <serverPort>
   .delimiter(cli.chalk['green']('connected>'))
   .init(function (args, callback) {
     username = args.username
-    server = connect({ host: 'localhost', port: 8080 }, () => {
+    serverHost = args.serverHost
+    serverPort = args.serverPort
+    server = connect( { host: serverHost, port: serverPort }, () => {    //{ host: serverHost, port: serverPort }  { host: 'localhost', port: 8080 }
       server.write(new Message({ username, command: 'connect' }).toJSON() + '\n')
       callback()
     })
 
+    //TODO: change color for each message type: echo, broadcast,whisper,connection alert,users
     server.on('data', (buffer) => {
-      this.log(Message.fromJSON(buffer).toString())
+      let color;
+      let recievedMessage = Message.fromJSON(buffer)
+      this.log(recievedMessage.toString())
     })
 
     server.on('end', () => {
@@ -33,12 +41,37 @@ cli
     const [ command, ...rest ] = words(input)
     const contents = rest.join(' ')
 
-    if (command === 'disconnect') {
-      server.end(new Message({ username, command }).toJSON() + '\n')
-    } else if (command === 'echo') {
-      server.write(new Message({ username, command, contents }).toJSON() + '\n')
-    } else {
-      this.log(`Command <${command}> was not recognized`)
+    if (command === 'disconnect') 
+    {
+        server.end(new Message({ username, command }).toJSON() + '\n')
+    }
+    else if(command === 'users')
+    {
+        previousCommand = ''
+        server.write(new Message({ username, command, contents }).toJSON() + '\n')
+    } 
+    else if (command === 'echo') 
+    {
+        previousCommand = 'echo'
+        server.write(new Message({ username, command, contents }).toJSON() + '\n')
+    } 
+    else if (command === 'broadcast')
+    {
+        previousCommand = 'broadcast'
+        server.write(new Message({username,command,contents}).toJSON()+'\n')
+    }
+    else if(command.charAt(0) === '@')
+    {
+        previousCommand = command
+        server.write(new Message({username,command,contents}).toJSON()+'\n')
+    }
+    else if(!(previousCommand === ''))
+    {
+        server.write(new Message({ username, command: previousCommand, contents: command }).toJSON() + '\n')
+    }
+    else 
+    {
+        this.log(`Command <${command}> was not recognized`)
     }
 
     callback()
