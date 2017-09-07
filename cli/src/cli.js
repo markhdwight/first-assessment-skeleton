@@ -38,9 +38,9 @@ cli
       else if(recievedMessage.command === 'disconnect')
         color = 'red'
       else if(recievedMessage.command === 'users')
-        color = 'yellow'
+        color = 'white'
       else if(recievedMessage.command === 'broadcast')
-        color = 'cyan'
+        color = 'yellow'
       else if(recievedMessage.command.charAt(0) === '@')
         color = 'magenta'
 
@@ -81,7 +81,7 @@ cli
     }
     else if(!(previousCommand === ''))  //If no command is specified just repeat the previous command, if it exists
     {
-        server.write(new Message({ username, command: previousCommand, contents: command }).toJSON() + '\n')
+        server.write(new Message({ username, command: previousCommand, contents: command +" "+ contents }).toJSON() + '\n')
     }
     else 
     {
