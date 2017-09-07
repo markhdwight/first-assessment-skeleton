@@ -15,23 +15,23 @@ cli
   .delimiter(cli.chalk['yellow']('ftd~$'))
 
 cli
-  .mode('connect <username> <serverHost> <serverPort>') // <serverHost> <serverPort>
+  .mode('connect <username> <serverHost> <serverPort>') 
   .delimiter(cli.chalk['green']('connected>'))
   .init(function (args, callback) {
     username = args.username
     serverHost = args.serverHost
     serverPort = args.serverPort
-    server = connect( { host: serverHost, port: serverPort }, () => {    //{ host: serverHost, port: serverPort }  { host: 'localhost', port: 8080 }
+    server = connect( { host: serverHost, port: serverPort }, () => {    //For local use: { host: 'localhost', port: 8080 }
       server.write(new Message({ username, command: 'connect' }).toJSON() + '\n')
       callback()
     })
 
-    //TODO: change color for each message type: echo, broadcast,whisper,connection alert,users
+    
     server.on('data', (buffer) => {
       let color = 'white';
       let recievedMessage = Message.fromJSON(buffer)
 
-      if(recievedMessage.command === 'echo')
+      if(recievedMessage.command === 'echo')        //Changes message color depending on the type of command recieved
         color = 'grey'
       else if(recievedMessage.command === 'connect')
         color = 'green'
@@ -52,8 +52,8 @@ cli
     })
   })
   .action(function (input, callback) {
-    const [ command, ...rest ] = words(input,/[^\s]+/g)
-    const contents = rest.join(' ')
+    const [ command, ...rest ] = words(input,/[^\s]+/g)   //RegEx should ensure that the only thing separating the input is the space character \s                                                       
+    const contents = rest.join(' ')                       //Ensures that '@' isn't dropped
 
     if (command === 'disconnect') 
     {
@@ -74,12 +74,12 @@ cli
         previousCommand = 'broadcast'
         server.write(new Message({username,command,contents}).toJSON()+'\n')
     }
-    else if(command.charAt(0) === '@')
+    else if(command.charAt(0) === '@')  
     {
         previousCommand = command
         server.write(new Message({username,command,contents}).toJSON()+'\n')
     }
-    else if(!(previousCommand === ''))
+    else if(!(previousCommand === ''))  //If no command is specified just repeat the previous command, if it exists
     {
         server.write(new Message({ username, command: previousCommand, contents: command }).toJSON() + '\n')
     }

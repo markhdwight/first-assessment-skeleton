@@ -45,7 +45,7 @@ public class Server implements Runnable {
 		}
 	}
 	
-	private String makeTempName()	
+	private String makeTempName()	//Assigns the client a temporary name during thread creation that is soon after replaced in updateUserName()
 	{
 		boolean nameIsUnique = false;
 		String tempName = "";
@@ -62,7 +62,7 @@ public class Server implements Runnable {
 		return tempName;
 	}
 	
-	public String updateUsername(String oldName,String newName)
+	public String updateUsername(String oldName,String newName)		//Used to assign the client handler the user's chosen username instead of the placeholder name
 	{
 		ClientHandler ch = clientList.remove(oldName);
 		if(!clientList.containsKey(newName))
@@ -97,7 +97,6 @@ public class Server implements Runnable {
 		
 		for(String n : clientList.keySet())
 		{
-			//System.out.println(n);
 			if(n.equals(sender))
 			{	
 				continue;
