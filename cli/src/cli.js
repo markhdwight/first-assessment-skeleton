@@ -33,8 +33,10 @@ cli
 
       if(recievedMessage.command === 'echo')
         color = 'grey'
-      else if(recievedMessage.command === 'disconnect' || recievedMessage.command === 'connect')
+      else if(recievedMessage.command === 'connect')
         color = 'blue'
+      else if(recievedMessage.command === 'disconnect')
+        color = 'red'
       else if(recievedMessage.command === 'users')
         color = 'yellow'
       else if(recievedMessage.command === 'broadcast')
@@ -50,7 +52,7 @@ cli
     })
   })
   .action(function (input, callback) {
-    const [ command, ...rest ] = words(input)
+    const [ command, ...rest ] = words(input,/[^\s]+/g)
     const contents = rest.join(' ')
 
     console.log(command)
