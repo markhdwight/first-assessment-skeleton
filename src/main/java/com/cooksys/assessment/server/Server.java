@@ -65,8 +65,24 @@ public class Server implements Runnable {
 	public String updateUsername(String oldName,String newName)
 	{
 		ClientHandler ch = clientList.remove(oldName);
-		clientList.put(newName, ch);
-		return newName;
+		if(!clientList.containsKey(newName))
+		{
+			clientList.put(newName, ch);	
+			return newName;
+		}
+		else	//Handle the case where multiple users try to use the same username by appending a number to the second user's name
+		{
+			int counter = 1;
+			String realNewName;
+			do{
+				realNewName = newName + "(" + counter + ")";
+				counter++;
+			}while(clientList.containsKey(realNewName));
+			
+			clientList.put(realNewName, ch);
+			return realNewName;
+		}
+		
 	}
 	
 	public void sendWhisper(String recipient,Message m)

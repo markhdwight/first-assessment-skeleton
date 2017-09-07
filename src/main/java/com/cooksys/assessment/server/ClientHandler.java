@@ -44,27 +44,27 @@ public class ClientHandler implements Runnable {
 
 				switch (message.getCommand()) {
 					case "connect":
-						log.info("user <{}> connected", message.getUsername());
 						userName = server.updateUsername(userName, message.getUsername());
+						log.info("user <{}> connected", userName);
 						message.setContents(userName + " has connected");
 						server.sendBroadcast(userName,message);
 						break;
 					case "disconnect":
-						log.info("user <{}> disconnected", message.getUsername());
+						log.info("user <{}> disconnected", userName);
 						server.sendBroadcast(userName,server.remove(userName,message));
 						this.socket.close();
 						break;
 					case "echo":
-						log.info("user <{}> echoed message <{}>", message.getUsername(), message.getContents());
+						log.info("user <{}> echoed message <{}>", userName, message.getContents());
 						message = server.echo(message);
 						sendToClient(message);
 						break;
 					case "broadcast":
-						log.info("user <{}> broadcasted message <{}>", message.getUsername(),message.getContents());
+						log.info("user <{}> broadcasted message <{}>",userName,message.getContents());
 						server.sendBroadcast(userName, message);
 						break;
 					case "users":
-						log.info("user <{}> requested client list",message.getUsername());
+						log.info("user <{}> requested client list",userName);
 						message.setContents(server.getFormattedClientList());
 						sendToClient(message);
 						break;

@@ -34,7 +34,7 @@ cli
       if(recievedMessage.command === 'echo')
         color = 'grey'
       else if(recievedMessage.command === 'connect')
-        color = 'blue'
+        color = 'green'
       else if(recievedMessage.command === 'disconnect')
         color = 'red'
       else if(recievedMessage.command === 'users')
@@ -54,8 +54,6 @@ cli
   .action(function (input, callback) {
     const [ command, ...rest ] = words(input,/[^\s]+/g)
     const contents = rest.join(' ')
-
-    console.log(command)
 
     if (command === 'disconnect') 
     {
@@ -79,7 +77,6 @@ cli
     else if(command.charAt(0) === '@')
     {
         previousCommand = command
-        console.log(command)
         server.write(new Message({username,command,contents}).toJSON()+'\n')
     }
     else if(!(previousCommand === ''))
