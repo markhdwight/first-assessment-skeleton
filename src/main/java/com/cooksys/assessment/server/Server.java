@@ -35,8 +35,10 @@ public class Server implements Runnable {
 			ss = new ServerSocket(this.port);
 			while (true) {
 				Socket socket = ss.accept();
-				ClientHandler handler = new ClientHandler(socket,this,makeTempName());
+				String tempName = makeTempName();
+				ClientHandler handler = new ClientHandler(socket,this,tempName);
 				executor.execute(handler);
+				clientList.put(tempName,handler);
 			}
 		} catch (IOException e) {
 			log.error("Something went wrong :/", e);
@@ -62,7 +64,7 @@ public class Server implements Runnable {
 	
 	public String updateUsername(String oldName,String newName)
 	{
-		ClientHandler ch = clientList.get(oldName);
+		ClientHandler ch = clientList.remove(oldName);
 		clientList.put(newName, ch);
 		return newName;
 	}
@@ -79,8 +81,11 @@ public class Server implements Runnable {
 		
 		for(String n : clientList.keySet())
 		{
+			//System.out.println(n);
 			if(n.equals(sender))
+			{	
 				continue;
+			}
 			else clientList.get(n).sendToClient(m);			
 		}
 	}

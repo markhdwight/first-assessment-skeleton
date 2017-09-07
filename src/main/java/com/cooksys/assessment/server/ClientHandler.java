@@ -24,7 +24,7 @@ public class ClientHandler implements Runnable {
 	private PrintWriter writer;
 	private String userName;
 
-	public ClientHandler(Socket socket,Server server, String userName) {
+	public ClientHandler(Socket socket,Server server,String userName) {
 		super();
 		this.socket = socket;
 		this.server = server;

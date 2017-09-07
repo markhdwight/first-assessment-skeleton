@@ -28,9 +28,21 @@ cli
 
     //TODO: change color for each message type: echo, broadcast,whisper,connection alert,users
     server.on('data', (buffer) => {
-      let color;
+      let color = 'white';
       let recievedMessage = Message.fromJSON(buffer)
-      this.log(recievedMessage.toString())
+
+      if(recievedMessage.command === 'echo')
+        color = 'grey'
+      else if(recievedMessage.command === 'disconnect' || recievedMessage.command === 'connect')
+        color = 'blue'
+      else if(recievedMessage.command === 'users')
+        color = 'yellow'
+      else if(recievedMessage.command === 'broadcast')
+        color = 'cyan'
+      else if(recievedMessage.command.charAt(0) === '@')
+        color = 'magenta'
+
+      this.log(cli.chalk[color](recievedMessage.toString()))
     })
 
     server.on('end', () => {
@@ -40,6 +52,8 @@ cli
   .action(function (input, callback) {
     const [ command, ...rest ] = words(input)
     const contents = rest.join(' ')
+
+    console.log(command)
 
     if (command === 'disconnect') 
     {
@@ -63,6 +77,7 @@ cli
     else if(command.charAt(0) === '@')
     {
         previousCommand = command
+        console.log(command)
         server.write(new Message({username,command,contents}).toJSON()+'\n')
     }
     else if(!(previousCommand === ''))
