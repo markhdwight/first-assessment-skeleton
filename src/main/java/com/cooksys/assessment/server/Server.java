@@ -6,7 +6,6 @@ import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 import org.slf4j.Logger;
@@ -19,13 +18,13 @@ public class Server implements Runnable {
 	
 	private int port;
 	private ExecutorService executor;
-	private HashMap<String,ClientHandler> clientList;
+	private HashMap<String,ClientHandler> clientMap;
 	
 	public Server(int port, ExecutorService executor) {
 		super();
 		this.port = port;
 		this.executor = executor;
-		clientList = new HashMap<String,ClientHandler>();
+		clientMap = new HashMap<String,ClientHandler>();
 	}
 
 	public void run() {
@@ -38,7 +37,7 @@ public class Server implements Runnable {
 				String tempName = makeTempName();
 				ClientHandler handler = new ClientHandler(socket,this,tempName);
 				executor.execute(handler);
-				clientList.put(tempName,handler);
+				clientMap.put(tempName,handler);
 			}
 		} catch (IOException e) {
 			log.error("Something went wrong :/", e);
@@ -54,7 +53,7 @@ public class Server implements Runnable {
 		do{
 			random = (int)(Math.random() * Integer.MAX_VALUE);
 			tempName = random+"";
-			if(!clientList.containsKey(tempName))
+			if(!clientMap.containsKey(tempName))
 				nameIsUnique = true;
 		
 		}while(!nameIsUnique);
@@ -64,10 +63,10 @@ public class Server implements Runnable {
 	
 	public String updateUsername(String oldName,String newName)		//Used to assign the client handler the user's chosen username instead of the placeholder name
 	{
-		ClientHandler ch = clientList.remove(oldName);
-		if(!clientList.containsKey(newName))
+		ClientHandler ch = clientMap.remove(oldName);
+		if(!clientMap.containsKey(newName))
 		{
-			clientList.put(newName, ch);	
+			clientMap.put(newName, ch);	
 			return newName;
 		}
 		else	//Handle the case where multiple users try to use the same username by appending a number to the second user's name
@@ -77,9 +76,9 @@ public class Server implements Runnable {
 			do{
 				realNewName = newName + "(" + counter + ")";
 				counter++;
-			}while(clientList.containsKey(realNewName));
+			}while(clientMap.containsKey(realNewName));
 			
-			clientList.put(realNewName, ch);
+			clientMap.put(realNewName, ch);
 			return realNewName;
 		}
 		
@@ -88,27 +87,27 @@ public class Server implements Runnable {
 	public void sendWhisper(String recipient,Message m)
 	{
 		m.setContents(getTimeStamp() + " <" + m.getUsername() + "> " + "(whisper): " +m.getContents());
-		clientList.get(recipient).sendToClient(m);
+		clientMap.get(recipient).sendToClient(m);
 	}
 	
 	public void sendBroadcast(String sender,Message m)
 	{		
 		m.setContents(getTimeStamp() + " <" + m.getUsername() + "> " + "(all): " +m.getContents());
 		
-		for(String n : clientList.keySet())
+		for(String n : clientMap.keySet())
 		{
 			if(n.equals(sender))
 			{	
 				continue;
 			}
-			else clientList.get(n).sendToClient(m);			
+			else clientMap.get(n).sendToClient(m);			
 		}
 	}
 	
 	public Message remove(String n,Message m)
 	{
 		m.setContents(getTimeStamp() + " <" + m.getUsername() + "> " + " has disconnected");
-		clientList.remove(n);
+		clientMap.remove(n);
 		return m;
 	}
 	
@@ -122,7 +121,7 @@ public class Server implements Runnable {
 	{
 		String temp = getTimeStamp() + " currently connected users: ";
 		
-		for(String n : clientList.keySet())
+		for(String n : clientMap.keySet())
 		{
 			temp+= ("\n" + n);
 		}
